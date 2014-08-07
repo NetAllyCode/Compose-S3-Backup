@@ -98,8 +98,8 @@ def upload_to_s3(s3key, filename, bucket, aws_key, aws_secret):
         with FileChunkIO(source_path, 'r', offset=offset, bytes=bytes) as fp:
             mp.upload_part_from_file(fp, part_num=i + 1)
     # Finish the upload
-    mp.complete_upload()
-    return 0
+    completed_upload = mp.complete_upload()
+    return completed_upload
 
 
 def delete_local_backup_file(filename):
