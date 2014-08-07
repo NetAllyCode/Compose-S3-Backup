@@ -47,6 +47,10 @@ def get_backup(database_name, account_name, oauth_token):
             backups_for_this_database.append(
                 {'id': backup['id'], 'created_at': backup['created_at'], 'filename': backup['filename']})
 
+    if len(backups_for_this_database) == 0:
+        print 'No Backups found for database name:{0}. Exiting...'.format(database_name)
+        sys.exit(1)
+
     # search for the latest backup for the given database name
     latest = sorted(backups_for_this_database, key=lambda k: k['created_at'])[-1]
     print 'The latest backup for {0} is: {1} created at {2}'.format(database_name, latest['id'], latest['created_at'])
@@ -116,18 +120,16 @@ if __name__ == '__main__':
 
     # first, fetch the backup
     filename = get_backup(database_name, account_name, oauth_token)
-    if filename is None:
+    if not filename:
         # we failed to save the backup successfully.
         sys.exit(1)
     # now, store the file we just downloaded up on S3
     print 'Uploading file to S3. Bucket:{0}'.format(bucket)
     s3_success = upload_to_s3(prefix + filename, filename, bucket, aws_key, aws_secret)
-    if s3_success is None:
-        #somehow failed the file upload
+    if not s3_success:
+        # somehow failed the file upload
         print 'Failure with S3 upload. Exiting...'
         sys.exit(1)
     print 'Upload to S3 completed successfully'
-    #Delete the local backup file, to not take up excessive disk space
+    # Delete the local backup file, to not take up excessive disk space
     delete_local_backup_file(filename)
-
-
