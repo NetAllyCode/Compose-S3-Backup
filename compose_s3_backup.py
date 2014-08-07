@@ -28,7 +28,7 @@ from filechunkio import FileChunkIO
 # http://support.mongohq.com/rest-api/2014-06/backups.html
 
 
-#Gets the latest backup for a given database and account.
+# Gets the latest backup for a given database and account.
 def get_backup(database_name, account_name, oauth_token):
     mongohq_url = 'https://api.mongohq.com/accounts/{0}/backups'.format(account_name)
     headers = {'Accept-Version': '2014-06', 'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ def get_backup(database_name, account_name, oauth_token):
 
     # search for the latest backup for the given database name
     latest = sorted(backups_for_this_database, key=lambda k: k['created_at'])[-1]
-    print 'The latest backup for {0} is: {1} created at {1}'.format(database_name, latest['id'], latest['created_at'])
+    print 'The latest backup for {0} is: {1} created at {2}'.format(database_name, latest['id'], latest['created_at'])
     backup_filename = latest['filename']
 
     # pull down the backup
@@ -98,6 +98,11 @@ def upload_to_s3(s3key, filename, bucket, aws_key, aws_secret):
     return 0
 
 
+def delete_local_backup_file(filename):
+    print 'Deleting file from local filesystem:{0}'.format(filename)
+    os.remove(filename)
+
+
 if __name__ == '__main__':
     # grab all the arguments
     arguments = docopt(__doc__, version='mongoHQ_s3_backup 0.0.1')
@@ -116,7 +121,13 @@ if __name__ == '__main__':
         sys.exit(1)
     # now, store the file we just downloaded up on S3
     print 'Uploading file to S3. Bucket:{0}'.format(bucket)
-    success = upload_to_s3(prefix + filename, filename, bucket, aws_key, aws_secret)
-    sys.exit(success) 
+    s3_success = upload_to_s3(prefix + filename, filename, bucket, aws_key, aws_secret)
+    if s3_success is None:
+        #somehow failed the file upload
+        print 'Failure with S3 upload. Exiting...'
+        sys.exit(1)
+    print 'Upload to S3 completed successfully'
+    #Delete the local backup file, to not take up excessive disk space
+    delete_local_backup_file(filename)
 
 

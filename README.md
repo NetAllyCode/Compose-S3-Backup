@@ -3,7 +3,7 @@ Compose-S3-Backup
 
 *Early Stage Software - unstable and unrefined... for now!*
 
-Download MongoDB backups from the [Compose](http://www.compose.io] API (formerly MongoHQ) and upload to Amazon S3
+Download MongoDB backups from the [Compose](http://www.compose.io) API (formerly MongoHQ) and upload to Amazon S3
 
 ##Usage
 Install Requirements
