@@ -8,7 +8,7 @@ mongoHQ_S3_backup.py (-h | --help)
 
 Options:
 -h --help      Show this screen.
--d <database_name> --database=<database_name>  Name of the database to find a backup for.
+-d <database_name> --database=<database_name>  Name of the database to find a backup for, or deployment name.
 -t <oauth_token> --token=<oauth_token>         MongoHQ OAUTH Token
 -a <account_name> --account=<account_name>     MongoHQ Account Name
 -b <bucket> --bucket=<bucket>                  S3 Bucket name
@@ -43,7 +43,7 @@ def get_backup(database_name, account_name, oauth_token):
     all_backups = r.json()
     backups_for_this_database = list()
     for backup in all_backups:
-        if database_name in backup['database_names']:
+        if database_name in backup['database_names'] or database_name == backup['deployment']:
             backups_for_this_database.append(
                 {'id': backup['id'], 'created_at': backup['created_at'], 'filename': backup['filename']})
 
